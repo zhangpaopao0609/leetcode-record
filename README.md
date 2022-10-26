@@ -1,2 +1,3 @@
 # leetcode-record
+
 record leetcode 
