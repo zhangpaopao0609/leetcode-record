@@ -24,7 +24,7 @@ var maxProfit = function (prices) {
 };
 // @lc code=end
 
-// dp[i] 第 i 天的最大利润
+// dp[i] 第 i 天买入的最大利润
 // dp[i] 其实就是从第 i 天到最后，这一段中的 最大值-prices[i]
 // dp[i-1] 就是从第 i-1 天到最后，这一段中的 最大值-prices[i-1]
 // 所以，从第 i-1 天到最后这一段的最大值只有可能是两个值：
