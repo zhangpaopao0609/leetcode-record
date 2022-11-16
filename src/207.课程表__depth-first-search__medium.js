@@ -11,79 +11,108 @@
  * @return {boolean}
  */
 const canFinish = function (numCourses, prerequisites) {
-  const studied = [];
+  const edges = new Array(numCourses).fill(-1).map(() => new Array());
+  // 每一个节点的 入度
+  const indeg = new Array(numCourses).fill(0);
 
-  const dfs = function (prerequisites, waited, needStudy) {
-    if (studied.includes(needStudy)) {
-      studied.push(...waited);
-      return true;
-    }
-    waited.push(needStudy);
-    for (let i = 0; i < prerequisites.length; i++) {
-      const n = prerequisites[i];
-      if (studied.includes(n[0])) {
-        continue;
-      }
-      if (n[0] === needStudy) {
-        return dfs(prerequisites, waited, n[1]);
-      }
-    }
-    studied.push(...waited);
-    return true;
-  };
+  for (const info of prerequisites) {
+    const n0 = info[0];
+    const n1 = info[1];
+    edges[n0].push(n1);
+    indeg[n1]++;
+  }
 
-  for (let i = 0; i < prerequisites.length; i++) {
-    if (!dfs(prerequisites, [], prerequisites[i][0])) {
-      return false;
+  const queue = [];
+  for (let i = 0; i < numCourses; i++) {
+    if (indeg[i] === 0) {
+      queue.push(i);
     }
   }
 
-  return true;
+  let finish = 0;
+  while (queue.length) {
+    const n = queue.shift();
+    finish++;
+    for (const v of edges[n]) {
+      indeg[v]--;
+      if (indeg[v] === 0) {
+        queue.push(v);
+      }
+    }
+  }
+
+  return finish === numCourses;
 };
 // @lc code=end
 
-// dfs
+// dfs 拓扑排序
 const canFinish_v1 = function (numCourses, prerequisites) {
-  // 记录已经学习的课程
-  const studied = [];
-  // 在需要前置学习的课程中，如果需要前置课程还有前置课程，那就继续 dfs，直到前置课程已学习或者没有前置课程了，为 true
-  // 如果前置课程在待学习的课程中，那么为 false，
-  let waited = [];
+  let valid = true;
+  // 0 未搜索 1 搜索中 2 已完成搜索
+  const visited = new Array(numCourses).fill(0);
+  const edges = new Array(numCourses).fill(-1).map(() => new Array());
 
-  const dfs = function (prerequisites, needStudy) {
-    if (studied.includes(needStudy)) {
-      // 需要学习的课程已学习
-      studied.push(...waited);
-      waited = [];
-      return true;
-    }
-    // 如果需要学习的课程没有学习，那么就找一下是否有前置课程
-    for (let i = 0; i < prerequisites.length; i++) {
-      const n = prerequisites[i];
-      if (n[0] === needStudy) {
-        // 有前置课程
-        waited.push(needStudy);
-        return dfs(prerequisites, n[1]);
+  for (const info of prerequisites) {
+    edges[info[1]].push(info[0]);
+  }
+
+  const dfs = function (u) {
+    visited[u] = 1;
+    for (const v of edges[u]) {
+      const ns = visited[v];
+      if (ns === 0) {
+        // 未搜索
+        dfs(v);
+        if (!valid) return;
+      } else if (ns === 1) {
+        // 搜索中
+        valid = false;
+        return;
       }
     }
-    // 如果没有前置课程
-    studied.push(...waited, needStudy);
-    waited = [];
-    return true;
+    visited[u] = 2;
   };
 
-  for (let i = 0; i < prerequisites.length; i++) {
-    if (!dfs(prerequisites, prerequisites[i][0])) {
-      return false;
+  for (let i = 0; i < numCourses && valid; i++) {
+    if (visited[i] === 0) {
+      dfs(i);
     }
   }
 
-  return true;
+  return valid;
 };
 
-console.log(
-  canFinish_v1(2, [
-    [1, 0],
-    [0, 1],
-  ])
-);
+// bfs 拓扑排序
+const canFinish_v2 = function (numCourses, prerequisites) {
+  const edges = new Array(numCourses).fill(-1).map(() => new Array());
+  // 每一个节点的 入度
+  const indeg = new Array(numCourses).fill(0);
+
+  for (const info of prerequisites) {
+    const n0 = info[0];
+    const n1 = info[1];
+    edges[n0].push(n1);
+    indeg[n1]++;
+  }
+
+  const queue = [];
+  for (let i = 0; i < numCourses; i++) {
+    if (indeg[i] === 0) {
+      queue.push(i);
+    }
+  }
+
+  let finish = 0;
+  while (queue.length) {
+    const n = queue.shift();
+    finish++;
+    for (const v of edges[n]) {
+      indeg[v]--;
+      if (indeg[v] === 0) {
+        queue.push(v);
+      }
+    }
+  }
+
+  return finish === numCourses;
+};
