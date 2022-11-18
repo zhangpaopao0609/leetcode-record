@@ -42,6 +42,9 @@ const islandPerimeter_v1 = function (grid) {
   const row = grid.length;
   const col = grid[0].length;
 
+  // 1. 陆地
+  // 2. 水
+  // 3. 遍历过了
   const dfs = function (grid, i, j, row, col) {
     // 不在网格中
     if (i < 0 || j < 0 || i >= row || j >= col) return 1;
