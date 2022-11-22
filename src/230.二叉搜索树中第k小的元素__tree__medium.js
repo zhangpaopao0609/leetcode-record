@@ -19,23 +19,26 @@
  * @return {number}
  */
 const kthSmallest = function (root, k) {
-  const stack = [];
+  const nodeCount = function (tree) {
+    if (!tree) return 0;
+    const left = nodeCount(tree.left);
+    const right = nodeCount(tree.right);
+    tree.count = left + right + 1;
+    return tree.count;
+  };
 
-  while (root || stack.length) {
-    while (root) {
-      stack.push(root);
-      root = root.left;
+  const getKNode = function (tree, k) {
+    if (tree.left.count > k - 1) {
+      return getKNode(tree.left);
+    } else if (tree.left.count < k - 1) {
+      return getKNode(tree.right);
+    } else {
+      return tree.val;
     }
+  };
 
-    root = stack.pop();
-    --k;
-    if (k === 0) {
-      break;
-    }
-    root = root.right;
-  }
-
-  return root.val;
+  nodeCount(root);
+  return getKNode(root, k);
 };
 // @lc code=end
 
@@ -71,4 +74,17 @@ const kthSmallest_v2 = function (root, k) {
   }
 
   return root.val;
+};
+
+// 根节点记录个数
+const kthSmallest_v3 = function (root, k) {
+  const nodeCount = function (tree) {
+    if (!tree) return 0;
+    const left = nodeCount(tree.left);
+    const right = nodeCount(tree.right);
+    tree.count = left + right + 1;
+    return tree.count;
+  };
+  nodeCount(root);
+  console.log(root);
 };
