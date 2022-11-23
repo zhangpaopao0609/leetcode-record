@@ -19,26 +19,33 @@
  * @return {number}
  */
 const kthSmallest = function (root, k) {
+  const nodeNum = new Map();
+
   const nodeCount = function (tree) {
     if (!tree) return 0;
     const left = nodeCount(tree.left);
     const right = nodeCount(tree.right);
-    tree.count = left + right + 1;
-    return tree.count;
+    nodeNum.set(tree, left + right + 1);
+    return left + right + 1;
   };
 
-  const getKNode = function (tree, k) {
-    if (tree.left.count > k - 1) {
-      return getKNode(tree.left);
-    } else if (tree.left.count < k - 1) {
-      return getKNode(tree.right);
-    } else {
-      return tree.val;
+  const kthSmallest = function (tree, k) {
+    let node = tree;
+    while (node) {
+      const num = nodeNum.get(node.left) || 0;
+      if (num > k - 1) {
+        node = node.left;
+      } else if (num < k - 1) {
+        node = node.right;
+        k -= num + 1;
+      } else {
+        return node.val;
+      }
     }
   };
 
   nodeCount(root);
-  return getKNode(root, k);
+  return kthSmallest(root, k);
 };
 // @lc code=end
 
