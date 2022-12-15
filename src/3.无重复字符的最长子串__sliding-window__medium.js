@@ -10,16 +10,20 @@
  * @return {number}
  */
 const lengthOfLongestSubstring = function (s) {
-  let l = (r = max = 0),
-    map = new Map();
-  while (r < s.length) {
-    const n = s[r];
-    if (map.has(n)) {
-      l = Math.max(l, map.get(n) + 1);
+  // 典型的滑动窗口
+  let left = 0;
+  let max = 0;
+  let set = new Set();
+
+  for (let i = 0; i < s.length; i++) {
+    const n = s[i];
+    // 如果当前值在窗口中，那么这个就删除 s[left] 并且移动 left
+    while (set.has(n)) {
+      set.delete(s[left]);
+      left++;
     }
-    max = Math.max(max, r - l + 1);
-    map.set(n, r);
-    r++;
+    set.add(n);
+    max = Math.max(max, set.size);
   }
 
   return max;
